@@ -4,8 +4,9 @@
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
         <meta
             http-equiv="Content-Security-Policy"
-            content="script-src 'self' 'sha256-dsuddx2GBhw6TLXj/FhIgULBg+26EE7IMdcpH9vct84='"
+            content="script-src 'self' 'sha256-CXzHMr9hyrouo9J2des5Cl6hNwQEVI7ecCLoEwuYPao='"
         />
+
         <title>Socket.IO chat</title>
         <style>
             body {
@@ -69,7 +70,6 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io()
-
         const form = document.getElementById('form')
         const input = document.getElementById('input')
 
@@ -77,8 +77,8 @@
             e.preventDefault()
             if (input.value) {
                 const data = {
-                    idUserSend: crypto.randomUUID(),
-                    idUserReciver: crypto.randomUUID(),
+                    idUserSend: 'Xxxx',
+                    idUserReciver: 'pxw',
                     message: input.value,
                     date: new Date().toLocaleDateString('es-ES', {
                         year: 'numeric',
