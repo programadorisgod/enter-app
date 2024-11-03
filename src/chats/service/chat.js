@@ -33,5 +33,8 @@ export const saveMessage = async ({
 
     if (savedMessage.result == 0) return 'Error saving message'
 
-    return 'Saved Message'
+    return {
+        message,
+        messageId: savedMessage?.data?.id_message,
+    }
 }

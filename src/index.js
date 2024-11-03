@@ -1,15 +1,17 @@
 import express, { json, urlencoded } from 'express'
 import cors from 'cors'
+import { createServer } from 'node:http'
+import { Server } from 'socket.io'
+import path from 'node:path'
 
 import morgan from 'morgan'
 import helmet from 'helmet'
 import { CustomErrorHandle } from './middleware/error.js'
 import { router } from './users/routes/route.js'
-import { createServer } from 'node:http'
-import { Server } from 'socket.io'
-import path from 'node:path'
 import { addContactService } from './users/services/service.js'
 import { saveMessage } from './chats/service/chat.js'
+import { savedFile } from './users/utils/saveFile.js'
+import { networkInterfaces } from 'node:os'
 
 const app = express()
 const server = createServer(app)
@@ -43,7 +45,7 @@ io.on('connection', (socket) => {
     console.log('user connect', socket.id)
     socket.on('chat message', async (data) => {
         const { idUserSend, idUserReciver, message, date } = data
-        console.log('data', data)
+        console.log(data)
 
         const savedMessage = await saveMessage({
             idUserSend,
@@ -53,24 +55,28 @@ io.on('connection', (socket) => {
         })
 
         if (savedMessage instanceof Error) {
-            console.log(savedMessage.message, 'merror')
-
             socket.emit({ msg: savedMessage?.message })
         }
 
-        socket.emit(saveMessage)
+        const { messageId } = savedMessage
+
+        const { pathFile, fileName } = await savedFile({ fileData: data })
+
+        
+
+        socket.emit('chat message', data)
     })
+
     socket.on('add', async (data) => {
         const { userId, contactUserId } = data
-        console.log(userId, contactUserId)
 
-        const userAdded = await addContactService({ userId, contactUserId })
+        const contactAdded = await addContactService({ userId, contactUserId })
 
-        if (userAdded instanceof Error) {
-            socket.emit({ msg: userAdded?.message })
+        if (contactAdded instanceof Error) {
+            socket.emit({ msg: contactAdded?.message })
         }
 
-        socket.emit(userAdded)
+        socket.emit('contact Added', contactAdded)
     })
     socket.on('disconnect', () => {
         console.log('user exit', socket.id)
@@ -83,9 +89,30 @@ app.use((_req, res, next) => {
 
 app.use(CustomErrorHandle)
 
-server.listen(PORT, () => {
-    console.log(`Server is running on http://192.168.56.1:${PORT}`)
-})
+if (process.env.NODE_ENV === 'development') {
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server is running on http://0.0.0.0:${PORT}`)
+
+        // Mostrar la IP local del servidor para facilitar el acceso
+
+        const nets = networkInterfaces()
+
+        for (const name of Object.keys(nets)) {
+            for (const net of nets[name]) {
+                // Saltarse las direcciones non-IPv4 y las interfaces de loopback
+                if (net.family === 'IPv4' && !net.internal) {
+                    console.log(
+                        `Accede desde otros dispositivos usando: http://${net.address}:${PORT}`
+                    )
+                }
+            }
+        }
+    })
+} else {
+    server.listen(PORT, () => {
+        console.log('Server is running')
+    })
+}
 
 process.on('uncaughtException', (err) => {
     console.log('err:', err)
