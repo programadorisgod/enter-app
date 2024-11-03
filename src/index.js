@@ -57,6 +57,8 @@ io.on('connection', (socket) => {
 
             socket.emit({ msg: savedMessage?.message })
         }
+
+        socket.emit(saveMessage)
     })
     socket.on('add', async (data) => {
         const { userId, contactUserId } = data
