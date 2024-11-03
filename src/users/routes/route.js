@@ -10,7 +10,7 @@ import { Router } from 'express'
 const router = Router()
 
 router.get(`${BASE_URL}/users/:username`, getUserByUsername)
-router.post(`${BASE_URL}/users/auth/login/:userId`, login)
+router.post(`${BASE_URL}/users/auth/login/:username`, login)
 router.post(`${BASE_URL}/users`, createUser)
 router.delete(`${BASE_URL}/users/:username`, deleteUserByUsername)
 

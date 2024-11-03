@@ -1,7 +1,6 @@
 import {
     createUserService,
     deleteUserByUsernameService,
-    getUserByIdService,
     getUserByUsernameService,
     loginService,
 } from '../services/service.js'
@@ -37,12 +36,12 @@ export const getUserByUsername = async (req, res, next) => {
     }
 }
 export const login = async (req, res, next) => {
-    const { userId } = req.params
+    const { username } = req.params
     const { recoveryKey, ip } = req.body
 
     try {
         const userExist = await loginService({
-            userId,
+            username,
             recoveryKey,
             userIp: ip,
         })

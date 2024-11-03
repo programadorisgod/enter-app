@@ -55,8 +55,8 @@ export const getUserByIdService = async ({ userId }) => {
 
     return user
 }
-export const loginService = async ({ userId, recoveryKey, userIp }) => {
-    const userExist = await getUserByIdService({ userId })
+export const loginService = async ({ username, recoveryKey, userIp }) => {
+    const userExist = await getUserByUsernameService({ username })
 
     if (userExist.result == 0) throw new NOT_FOUND_ERROR('user not founds')
 
@@ -65,7 +65,11 @@ export const loginService = async ({ userId, recoveryKey, userIp }) => {
     if (recovery_key != recoveryKey || userIp != ip)
         throw new BAD_REQUEST_ERROR('Values not valid', 400)
 
-    return userExist.data
+    return {
+        userId: userExist.data.user_id,
+        recoveryKey: userExist.data.recovery_key,
+        username: userExist.data.username,
+    }
 }
 export const deleteUserByUsernameService = async ({ username }) => {
     if (!username) throw new BAD_REQUEST_ERROR('username empty', 400)
