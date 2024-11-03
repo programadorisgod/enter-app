@@ -1,4 +1,4 @@
-import express, { json } from 'express'
+import express, { json, urlencoded } from 'express'
 import cors from 'cors'
 
 import morgan from 'morgan'
@@ -23,6 +23,7 @@ const filePath = path.join(process.cwd(), '/public', 'index.html')
 
 app.use(cors({ origin: '*' }))
 app.use(json())
+app.use(urlencoded({ extended: true }))
 //app.use(helmet())
 app.disable('x-powered-by')
 app.use(morgan('dev'))
