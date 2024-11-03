@@ -35,22 +35,14 @@ export class Database {
     }
 
     async query({ sql, values = [] }) {
-        const cache = new Map()
-
-        const cacheKey = `${sql.text}-${values.join(',')}`
-
-        const cacheEntry = cache.get(cacheKey)
-
-        if (cacheEntry) return cacheEntry
-
         try {
             const result = await this.client.query(sql, values)
-            return result.rows[0]
+            return result.rowCount
         } catch (error) {
             console.error('Error executing query', {
                 message: error.message,
                 stack: error.stack,
-                sql: sql.text,
+                sql: sql,
                 values: values,
             })
             throw new Error(

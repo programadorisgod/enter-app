@@ -1,3 +1,9 @@
-import { router } from '../../config/router/router'
+import { createUser } from '../controller/controller.js'
+import { BASE_URL } from '../../CONSTANTS/constant.js'
+import { Router } from 'express'
 
-router.post(`${BASE_URL}`)
+const router = Router()
+
+router.post(`${BASE_URL}/users`, createUser)
+
+export { router }
