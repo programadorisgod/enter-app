@@ -3,18 +3,17 @@ import cors from 'cors'
 import { createServer } from 'node:http'
 import { Server } from 'socket.io'
 import path from 'node:path'
-
 import morgan from 'morgan'
 import helmet from 'helmet'
+import { networkInterfaces } from 'node:os'
+
+
 import { CustomErrorHandle } from './middleware/error.js'
 import { router } from './users/routes/route.js'
-import { createServer } from 'node:http'
-import { Server } from 'socket.io'
-import path from 'node:path'
 import { addContactService } from './users/services/service.js'
 import { saveMessage } from './chats/service/chat.js'
 import { savedFile } from './users/utils/saveFile.js'
-import { networkInterfaces } from 'node:os'
+import { fileRouter } from './file/router/route.js'
 
 const app = express()
 const server = createServer(app)

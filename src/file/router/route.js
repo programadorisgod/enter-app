@@ -3,10 +3,10 @@ import { Router } from 'express'
 import { uploadFile } from '../../middleware/upload.js'
 import { encryptFiles, decryptFiles } from '../controller/controller.js'
 
-const router = Router()
+const fileRouter = Router()
 
-router.post(`${BASE_URL}/encrypt-file`, uploadFile , encryptFiles )
+fileRouter.post(`${BASE_URL}/encrypt-file`, uploadFile, encryptFiles)
 
-router.get(`${BASE_URL}/decrypt-file/:namefile`, decryptFiles)
+fileRouter.get(`${BASE_URL}/decrypt-file/:namefile`, decryptFiles)
 
-export { router }
+export { fileRouter }
