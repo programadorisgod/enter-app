@@ -15,6 +15,7 @@
     "prettier": "3.3.3"
   },
   "dependencies": {
+    "@types/socket.io": "^3.0.2",
     "apicustomerrors": "^1.4.0",
     "bip39": "^3.1.0",
     "cors": "^2.8.5",
@@ -22,6 +23,7 @@
     "express": "^4.21.1",
     "helmet": "^8.0.0",
     "morgan": "^1.10.0",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "socket.io": "^4.8.1"
   }
 }

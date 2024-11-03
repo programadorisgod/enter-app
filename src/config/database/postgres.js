@@ -37,7 +37,12 @@ export class Database {
     async query({ sql, values = [] }) {
         try {
             const result = await this.client.query(sql, values)
-            return result.rowCount
+            console.log(result)
+
+            return {
+                result: result.rowCount,
+                data: result.rows[0],
+            }
         } catch (error) {
             console.error('Error executing query', {
                 message: error.message,
