@@ -3,14 +3,15 @@ import multer from 'multer'
 // Configuración de almacenamiento
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Carpeta donde se guardarán los archivos
+    cb(null, 'uploads/'); 
+    // Carpeta donde se guardarán los archivos
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname)
   }
 })
 
-const upload = multer({ storage: storage }).fields([{ name: 'files'}])
+const upload = multer({ storage: storage }).array('files')
 
 export const uploadFile = (req, res, next) => {
   upload(req, res, (error) => {
