@@ -1,4 +1,4 @@
-export const CustomErrorHandle = (err, res, req, next) => {
+export const CustomErrorHandle = (err, req, res, next) => {
     const defaultCustomError = {
         msg: err?.message ?? 'Internal server error',
         statusCode: err?.statusCode ?? 500,

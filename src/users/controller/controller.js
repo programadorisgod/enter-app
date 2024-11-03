@@ -1,4 +1,4 @@
-import { createUserService } from '../services/service'
+import { createUserService } from '../services/service.js'
 
 export const createUser = async (req, res, next) => {
     const { username, ip } = req.body
@@ -7,8 +7,8 @@ export const createUser = async (req, res, next) => {
 
         if (newUser instanceof Error) {
             const error = {
-                msg: '',
-                statusCode: 200,
+                msg: newUser.message,
+                statusCode: newUser?.statusCode || 500,
             }
             next(error)
         }
@@ -19,3 +19,5 @@ export const createUser = async (req, res, next) => {
         next(error)
     }
 }
+
+export const getUserByUsername = async (username = '') => {}
