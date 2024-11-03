@@ -1,7 +1,9 @@
 import {
     createUserService,
     deleteUserByUsernameService,
+    getUserByIdService,
     getUserByUsernameService,
+    loginService,
 } from '../services/service.js'
 
 export const createUser = async (req, res, next) => {
@@ -13,7 +15,7 @@ export const createUser = async (req, res, next) => {
             next(error)
         }
 
-        res.status(201).json({ message: newUser })
+        res.status(201).json({ msg: newUser })
     } catch (error) {
         console.log('error:', error)
         next(error)
@@ -29,7 +31,27 @@ export const getUserByUsername = async (req, res, next) => {
             next(error)
         }
 
-        res.status(200).json({ message: userExist.data })
+        res.status(200).json({ msg: userExist.data })
+    } catch (error) {
+        next(error)
+    }
+}
+export const login = async (req, res, next) => {
+    const { userId } = req.params
+    const { recoveryKey, ip } = req.body
+
+    try {
+        const userExist = await loginService({
+            userId,
+            recoveryKey,
+            userIp: ip,
+        })
+
+        if (userExist instanceof Error) {
+            next(error)
+        }
+
+        res.status(200).json({ msg: userExist })
     } catch (error) {
         next(error)
     }
@@ -44,7 +66,7 @@ export const deleteUserByUsername = async (req, res, next) => {
             next(error)
         }
 
-        res.status(200).json({ message: result })
+        res.status(200).json({ msg: result })
     } catch (error) {
         next(error)
     }

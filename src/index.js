@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
         if (savedMessage instanceof Error) {
             console.log(savedMessage.message, 'merror')
 
-            socket.emit({ message: savedMessage?.message })
+            socket.emit({ msg: savedMessage?.message })
         }
     })
     socket.on('add', async (data) => {
@@ -65,7 +65,7 @@ io.on('connection', (socket) => {
         const userAdded = await addContactService({ userId, contactUserId })
 
         if (userAdded instanceof Error) {
-            socket.emit({ message: userAdded?.message })
+            socket.emit({ msg: userAdded?.message })
         }
 
         socket.emit(userAdded)

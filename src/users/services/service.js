@@ -55,6 +55,18 @@ export const getUserByIdService = async ({ userId }) => {
 
     return user
 }
+export const loginService = async ({ userId, recoveryKey, userIp }) => {
+    const userExist = await getUserByIdService({ userId })
+
+    if (userExist.result == 0) throw new NOT_FOUND_ERROR('user not founds')
+
+    const { recovery_key, ip } = userExist?.data
+
+    if (recovery_key != recoveryKey || userIp != ip)
+        throw new BAD_REQUEST_ERROR('Values not valid', 400)
+
+    return userExist.data
+}
 export const deleteUserByUsernameService = async ({ username }) => {
     if (!username) throw new BAD_REQUEST_ERROR('username empty', 400)
     const userExist = await getUserByUsernameService({ username })
@@ -77,7 +89,7 @@ export const addContactService = async ({ userId, contactUserId }) => {
     if (userExist.result == 0) return 'user not found'
 
     if (userId === contactUserId)
-        return { message: 'You cannot be your own contact' }
+        return { msg: 'You cannot be your own contact' }
 
     const contactExist = await getUserByIdService({ userId })
 
