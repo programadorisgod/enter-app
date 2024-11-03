@@ -4,7 +4,7 @@
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
         <meta
             http-equiv="Content-Security-Policy"
-            content="script-src 'self' 'sha256-z3ovHImdT+3ZhUqSomPe42X1HGHvz7a1sumMyTyhRGs='"
+            content="script-src 'self' 'sha256-dsuddx2GBhw6TLXj/FhIgULBg+26EE7IMdcpH9vct84='"
         />
         <title>Socket.IO chat</title>
         <style>
@@ -76,7 +76,21 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault()
             if (input.value) {
-                socket.emit('chat message', input.value)
+                const data = {
+                    idUserSend: crypto.randomUUID(),
+                    idUserReciver: crypto.randomUUID(),
+                    message: input.value,
+                    date: new Date().toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        second: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'America/Bogota',
+                    }),
+                }
+                socket.emit('chat message', data)
                 input.value = ''
             }
         })

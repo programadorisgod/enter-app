@@ -37,7 +37,6 @@ export class Database {
     async query({ sql, values = [] }) {
         try {
             const result = await this.client.query(sql, values)
-            console.log(result)
 
             return {
                 result: result.rowCount,

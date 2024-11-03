@@ -32,8 +32,18 @@ app.use(router)
 app.use('/socket', express.static(filePath))
 
 io.on('connection', (socket) => {
+    console.log('user connect', socket.id)
+    socket.on('chat message', (data) => {
+        const { idUserSend, idUserReciver, message, date } = data
+
+        console.log('data', data)
+    })
+    socket.on('add', (data) => {
+        const { userId, contactUserId } = data
+        console.log(userId, contactUserId)
+    })
     socket.on('disconnect', () => {
-        console.log('user exit')
+        console.log('user exit', socket.id)
     })
 })
 
@@ -44,5 +54,5 @@ app.use((_req, res, next) => {
 app.use(CustomErrorHandle)
 
 server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`)
+    console.log(`Server is running on http://192.168.56.1:${PORT}`)
 })
