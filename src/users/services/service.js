@@ -97,13 +97,19 @@ export const addContactService = async ({ userId, contactUserId }) => {
 
     const contactExist = await getUserByIdService({ userId })
 
-    if (contactExist.result) return 'the user to add does not exist'
+    if (contactExist.result == 0) return 'the user to add does not exist'
 
     const sql =
         'INSERT INTO contacts (user_id, contact_user_id) VALUES ($1, $2)'
     const values = [userId, contactUserId]
 
-    const contactAdded = await db.sql({ sql, values })
+    const contactAdded = await db.query({ sql, values })
 
-    if (contactAdded.result == 1) return 'user added'
+    if (contactAdded.result == 1) {
+        const contact = await getUserByIdService({ userId: contactUserId })
+
+        return contact?.data
+    }
+
+    return 'error'
 }
