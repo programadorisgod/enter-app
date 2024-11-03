@@ -8,6 +8,9 @@ import morgan from 'morgan'
 import helmet from 'helmet'
 import { CustomErrorHandle } from './middleware/error.js'
 import { router } from './users/routes/route.js'
+import { createServer } from 'node:http'
+import { Server } from 'socket.io'
+import path from 'node:path'
 import { addContactService } from './users/services/service.js'
 import { saveMessage } from './chats/service/chat.js'
 import { savedFile } from './users/utils/saveFile.js'
@@ -39,6 +42,7 @@ app.disable('x-powered-by')
 app.use(morgan('dev'))
 
 app.use(router)
+app.use(fileRouter)
 app.use('/socket', express.static(filePath))
 
 io.on('connection', (socket) => {
@@ -82,6 +86,7 @@ io.on('connection', (socket) => {
         console.log('user exit', socket.id)
     })
 })
+
 
 app.use((_req, res, next) => {
     res.status(404).send("Sorry can't find that!")
