@@ -49,12 +49,18 @@ app.use('/socket', express.static(filePath))
 io.on('connection', (socket) => {
     console.log('user connect', socket.id)
     socket.on('chat message', async (info) => {
-        const { idUserSend, idUserReciver, message, date, fileName, fileData } =
-            info
+        const {
+            idUserSend,
+            idUserReceiver,
+            message,
+            date,
+            fileName,
+            fileData,
+        } = info
 
         const savedMessage = await saveMessage({
             idUserSend,
-            idUserReciver,
+            idUserReceiver,
             message,
             date,
         })
