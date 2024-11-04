@@ -7,13 +7,14 @@ import morgan from 'morgan'
 import helmet from 'helmet'
 import { networkInterfaces } from 'node:os'
 
-
 import { CustomErrorHandle } from './middleware/error.js'
 import { router } from './users/routes/route.js'
 import { addContactService } from './users/services/service.js'
 import { saveMessage } from './chats/service/chat.js'
 import { savedFile } from './users/utils/saveFile.js'
 import { fileRouter } from './file/router/route.js'
+import { chatRouter } from './chats/router/chat.js'
+import { savedFileDatabase } from './file/controller/controller.js'
 
 const app = express()
 const server = createServer(app)
@@ -42,13 +43,14 @@ app.use(morgan('dev'))
 
 app.use(router)
 app.use(fileRouter)
+app.use(chatRouter)
 app.use('/socket', express.static(filePath))
 
 io.on('connection', (socket) => {
     console.log('user connect', socket.id)
-    socket.on('chat message', async (data) => {
-        const { idUserSend, idUserReciver, message, date } = data
-        console.log(data)
+    socket.on('chat message', async (info) => {
+        const { idUserSend, idUserReciver, message, date, fileName, fileData } =
+            info
 
         const savedMessage = await saveMessage({
             idUserSend,
@@ -61,13 +63,26 @@ io.on('connection', (socket) => {
             socket.emit({ msg: savedMessage?.message })
         }
 
-        const { messageId } = savedMessage
+        if (fileName && filePath) {
+            const { messageId } = savedMessage
 
-        const { pathFile, fileName } = await savedFile({ fileData: data })
+            const { filePath } = await savedFile({
+                fileName,
+                fileData,
+            })
 
-        
+            const result = await savedFileDatabase({
+                messageId,
+                filePath,
+                fileName,
+                userId: idUserSend,
+            })
+            if (result?.error) return socket.emit('chat message', message)
 
-        socket.emit('chat message', data)
+            socket.emit('chat message', 'file upload')
+        }
+
+        socket.emit('chat message', message)
     })
 
     socket.on('add', async (data) => {
@@ -85,7 +100,6 @@ io.on('connection', (socket) => {
         console.log('user exit', socket.id)
     })
 })
-
 
 app.use((_req, res, next) => {
     res.status(404).send("Sorry can't find that!")
