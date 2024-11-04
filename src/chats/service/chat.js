@@ -1,6 +1,7 @@
 import { getUserByIdService } from '../../users/services/service.js'
 import { Database } from '../../config/database/postgres.js'
 import { NOT_FOUND_ERROR } from 'apicustomerrors'
+import { decrypt } from '../../users/utils/encriptMessages.js'
 
 const db = Database.getInstance()
 
@@ -54,14 +55,28 @@ export const getChatsService = async ({ userId }) => {
 
     const chats = await db.query({ sql, values })
 
+    let msgs = []
+
+    if (!Array.isArray(chats?.data) && chats?.result == 1) {
+        msgs.push(chats.data)
+
+        return {
+            msg: msgs,
+        }
+    }
+
+    if (!chats?.data && chats?.result == 0) {
+        return msgs
+    }
+
+    msgs = chats?.data
+
     return {
-        msg: chats?.data,
+        msg: msgs,
     }
 }
 
 export const getChatService = async ({ userId, userReceiverId }) => {
-    console.log(userId, userReceiverId)
-
     const userSend = await getUserByIdService({ userId })
 
     if (userSend.result == 0) return 'user not found'
@@ -91,7 +106,31 @@ export const getChatService = async ({ userId, userReceiverId }) => {
     const values = [userId, userReceiverId]
     const messages = await db.query({ sql: sql, values: values })
 
+    let msgs = []
+
+    if (!Array.isArray(messages?.data) && messages?.result == 1) {
+        messages.data.message = decrypt(messages.data.message)
+        msgs.push(messages.data)
+
+        return {
+            msg: msgs,
+        }
+    }
+
+    if (!messages?.data) {
+        return {
+            msg: msgs,
+        }
+    }
+
+    msgs = messages?.data?.map((msg) => {
+        return {
+            ...msg,
+            message: decrypt(msg.message),
+        }
+    })
+
     return {
-        msg: messages.data,
+        msg: msgs,
     }
 }
