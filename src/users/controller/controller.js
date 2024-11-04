@@ -38,6 +38,7 @@ export const getUserByUsername = async (req, res, next) => {
 export const login = async (req, res, next) => {
     const { username } = req.params
     const { recoveryKey, ip } = req.body
+    console.log(username, recoveryKey, ip)
 
     try {
         const userExist = await loginService({
