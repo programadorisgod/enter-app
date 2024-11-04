@@ -9,6 +9,8 @@ const secretKey = process.env.SECRET_KEY;
 export const encryptFiles = async (req, res) => {
     try {
         const files = req.files;
+        const userId = req.params.userId
+
 
         if (!files || files.length === 0) {
             return res.status(400).json({ message: 'No se ha subido ningún archivo' });
@@ -124,10 +126,7 @@ export const decryptFiles = async (req, res) => {
         );
 
         // Responder con los nombres de los archivos desencriptados
-        res.status(200).json({
-            message: 'Archivos desencriptados exitosamente',
-            files: decryptedFiles,
-        });
+        res.status(200).res.sendFile(decryptFiles)
 
     } catch (error) {
         console.error('❌ Error durante la desencriptación:', error);
