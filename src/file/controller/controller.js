@@ -89,7 +89,7 @@ export const encryptFiles = async (req, res) => {
                             `❌ Error al escribir el archivo ${file.originalname}: ${err}`
                         )
                     )
-
+                    const filePathUrl = `http://192.168.10.39:3000/files/${file.originalname}`
                     const result = savedFileDatabase({
                         messageId: null,
                         filePath: uploadedFilePath,
@@ -227,7 +227,16 @@ export const getFiles = async (req, res) => {
         const userFound = await getUserByIdService({ userId })       
         if (userFound.result == 0) return res.status(400).json({ message: 'user not found' })
         const files = await getFilesService({ userId: userFound.data.user_id })
-        res.status(200).json(files)
+
+        const filesData = files.data.map(file => {
+            return{
+                idFile: file.id,
+                nameFile: file.file_name,
+                user_id: file.user_id
+            }
+        })
+
+        res.status(200).json(filesData)
     } catch (error) {
         console.error('❌ Error al obtener los archivos:', error)
         res.status(500).json({ message: 'Error al obtener los archivos' })
