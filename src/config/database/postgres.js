@@ -38,9 +38,10 @@ export class Database {
         try {
             const result = await this.client.query(sql, values)
 
+            const data = result.rowCount > 1 ? result.rows : result.rows[0]
             return {
                 result: result.rowCount,
-                data: result.rows[0],
+                data,
             }
         } catch (error) {
             console.error('Error executing query', {
