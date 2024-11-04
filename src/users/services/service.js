@@ -21,9 +21,9 @@ export const createUserService = async ({ username = {}, ip = '' }) => {
     const recoveryKey = generateMnemonic()
 
     const sql =
-        'INSERT INTO users (user_id, username, recovery_key, group_id, ip) values ($1, $2, $3, $4, $5)'
+        'INSERT INTO users (user_id, username, recovery_key, group_id, ip, publicKey) values ($1, $2, $3, $4, $5, $6)'
 
-    const values = [userId, username, recoveryKey, null, ip]
+    const values = [userId, username, recoveryKey, null, ip, null]
 
     await db.query({ sql, values })
 
@@ -99,8 +99,20 @@ export const addContactService = async ({ userId, contactUserId }) => {
 
     if (contactExist.result == 0) return 'the user to add does not exist'
 
+    const sql0 = `
+           SELECT contact_user_id 
+           FROM contacts
+           WHERE contact_user_id = $1 
+           AND  user_id = $2
+    `
+    const values0 = [contactUserId, userId]
+
+    const contactExistAdded = await db.query({ sql: sql0, values: values0 })
+
+    if (contactExistAdded?.result == 1) return 'Contact exits'
+
     const sql =
-        'INSERT INTO contacts (user_id, contact_user_id) VALUES ($1, $2)'
+        'INSERT INTO contacts (user_id, contact_user_id) VALUES ($1, $2) RETURNING *'
     const values = [userId, contactUserId]
 
     const contactAdded = await db.query({ sql, values })
@@ -108,7 +120,10 @@ export const addContactService = async ({ userId, contactUserId }) => {
     if (contactAdded.result == 1) {
         const contact = await getUserByIdService({ userId: contactUserId })
 
-        return contact?.data
+        return {
+            contact_user_id: contact?.data.user_id,
+            username: contact?.data?.username,
+        }
     }
 
     return 'error'

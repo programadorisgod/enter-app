@@ -15,6 +15,8 @@ import { savedFile } from './users/utils/saveFile.js'
 import { fileRouter } from './file/router/route.js'
 import { chatRouter } from './chats/router/chat.js'
 import { savedFileDatabase } from './file/controller/controller.js'
+import { encrypt } from './users/utils/encriptMessages.js'
+import { decrypt } from './users/utils/encript.js'
 
 const app = express()
 const server = createServer(app)
@@ -46,17 +48,28 @@ app.use(fileRouter)
 app.use(chatRouter)
 app.use('/socket', express.static(filePath))
 
+const userSocketMap = new Map()
+
 io.on('connection', (socket) => {
     console.log('user connect', socket.id)
+
     socket.on('chat message', async (info) => {
-        const { idUserSend, idUserReciver, message, date, fileName, fileData } =
-            info
+        const {
+            idUserSend,
+            idUserReceiver,
+            message,
+            datetime,
+            fileName,
+            fileData,
+        } = info
+
+        const cipherMessage = encrypt(message)
 
         const savedMessage = await saveMessage({
             idUserSend,
-            idUserReciver,
-            message,
-            date,
+            idUserReceiver,
+            message: cipherMessage,
+            date: datetime,
         })
 
         if (savedMessage instanceof Error) {
@@ -79,10 +92,12 @@ io.on('connection', (socket) => {
             })
             if (result?.error) return socket.emit('chat message', message)
 
-            socket.emit('chat message', 'file upload')
+            io.emit('chat message', 'file upload')
         }
 
-        socket.emit('chat message', message)
+        info.message = decrypt(cipherMessage)
+
+        io.emit('newMessage', info)
     })
 
     socket.on('add', async (data) => {
@@ -98,6 +113,12 @@ io.on('connection', (socket) => {
     })
     socket.on('disconnect', () => {
         console.log('user exit', socket.id)
+        userSocketMap.forEach((value, key) => {
+            if (value === socket.id) {
+                userSocketMap.delete(key)
+                console.log('disconet')
+            }
+        })
     })
 })
 
