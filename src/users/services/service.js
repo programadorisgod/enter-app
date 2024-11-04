@@ -9,7 +9,11 @@ import { generateMnemonic } from 'bip39'
 
 const db = Database.getInstance()
 
-export const createUserService = async ({ username = {}, ip = '' }) => {
+export const createUserService = async ({
+    username = {},
+    ip = '',
+    publicKey,
+}) => {
     const userExist = await getUserByUsernameService({ username })
 
     if (userExist.result == 1) throw new CONFLICT_ERROR('User exits')
@@ -21,9 +25,9 @@ export const createUserService = async ({ username = {}, ip = '' }) => {
     const recoveryKey = generateMnemonic()
 
     const sql =
-        'INSERT INTO users (user_id, username, recovery_key, group_id, ip) values ($1, $2, $3, $4, $5)'
+        'INSERT INTO users (user_id, username, recovery_key, group_id, ip, publicKey) values ($1, $2, $3, $4, $5)'
 
-    const values = [userId, username, recoveryKey, null, ip]
+    const values = [userId, username, recoveryKey, null, ip, publicKey]
 
     await db.query({ sql, values })
 

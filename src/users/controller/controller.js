@@ -6,9 +6,9 @@ import {
 } from '../services/service.js'
 
 export const createUser = async (req, res, next) => {
-    const { username, ip } = req.body
+    const { username, ip, publicKey } = req.body
     try {
-        const newUser = await createUserService({ username, ip })
+        const newUser = await createUserService({ username, ip, publicKey })
 
         if (newUser instanceof Error) {
             next(error)

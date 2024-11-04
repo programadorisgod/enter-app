@@ -60,6 +60,8 @@ export const getChatsService = async ({ userId }) => {
 }
 
 export const getChatService = async ({ userId, userReceiverId }) => {
+    console.log(userId, userReceiverId)
+
     const userSend = await getUserByIdService({ userId })
 
     if (userSend.result == 0) return 'user not found'
