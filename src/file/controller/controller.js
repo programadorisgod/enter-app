@@ -1,7 +1,8 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'path'
-import { savedFileDatabaseService } from '../services/file.js'
+import { savedFileDatabaseService, getFilesService, getFileByName } from '../services/file.js'
+import { getUserByIdService } from '../../users/services/service.js'
 
 // Clave secreta
 const secretKey = process.env.SECRET_KEY
@@ -31,7 +32,13 @@ export const savedFileDatabase = async ({
 
 export const encryptFiles = async (req, res) => {
     try {
-        const files = req.files
+        const files = req.files;
+        const userId = req.params.userId
+
+        const userFound = await getUserByIdService({ userId })
+
+        if (userFound.result == 0) return res.status(400).json({ message: 'user not found' })
+
 
         if (!files || files.length === 0) {
             return res
@@ -82,9 +89,18 @@ export const encryptFiles = async (req, res) => {
                             `❌ Error al escribir el archivo ${file.originalname}: ${err}`
                         )
                     )
+
+                    const result = savedFileDatabase({
+                        messageId: null,
+                        filePath: uploadedFilePath,
+                        fileName: file.originalname,
+                        userId: userFound.data.user_id,
+                    })
+                    if (result?.error) return res.status(400).json({ message: 'error saving file' })
                 })
             })
         )
+        
         res.status(200).json({
             message: 'Archivos encriptados exitosamente',
             encriptados,
@@ -105,6 +121,10 @@ export const decryptFiles = async (req, res) => {
                 message: 'No se han proporcionado archivos para desencriptar',
             })
         }
+
+        const filesFound = await getFileByName({ file_name: files[0].replace('.enc', '') })
+
+        if (filesFound.result == 0) return res.status(400).json({ message: 'files not found' })
 
         const decryptedFiles = await Promise.all(
             files.map(
@@ -166,7 +186,7 @@ export const decryptFiles = async (req, res) => {
                                     console.log(
                                         `✅ Archivo ${file} desencriptado exitosamente`
                                     )
-                                    resolve(path.basename(decryptedFilePath))
+                                    resolve(decryptedFilePath)
                                 })
 
                                 output.on('error', (err) => {
@@ -191,14 +211,26 @@ export const decryptFiles = async (req, res) => {
                     })
             )
         )
-
         // Responder con los nombres de los archivos desencriptados
-        res.status(200).json({
-            message: 'Archivos desencriptados exitosamente',
-            files: decryptedFiles,
-        })
+        res.status(200).sendFile(decryptedFiles[0])
+
     } catch (error) {
         console.error('❌ Error durante la desencriptación:', error)
         res.status(500).json({ message: 'Error durante la desencriptación' })
     }
 }
+
+
+export const getFiles = async (req, res) => {
+    try {
+        const userId = req.params.userId
+        const userFound = await getUserByIdService({ userId })       
+        if (userFound.result == 0) return res.status(400).json({ message: 'user not found' })
+        const files = await getFilesService({ userId: userFound.data.user_id })
+        res.status(200).json(files)
+    } catch (error) {
+        console.error('❌ Error al obtener los archivos:', error)
+        res.status(500).json({ message: 'Error al obtener los archivos' })
+    }
+}  
+
